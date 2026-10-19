@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>エアコンクリーニング ご予約フォーム｜株式会社トレックスパートナーズ</title>
+<meta name="description" content="株式会社トレックスパートナーズのエアコンクリーニング予約フォーム。台数とオプションを選ぶと概算料金がすぐにわかります。東京・神奈川・埼玉・千葉対応。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #12355b;
+    --blue: #1f6fb2;
+    --sky: #e8f2fb;
+    --line: #d6e2ee;
+    --text: #1c2733;
+    --muted: #5b6b7b;
+    --bg: #f5f8fb;
+    --white: #ffffff;
+    --accent: #e8743b;
+    --error: #c0392b;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+
+  header.hero {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: var(--white);
+    padding: 36px 0 32px;
+  }
+  .company { font-size: 13px; letter-spacing: .08em; opacity: .85; margin: 0 0 8px; }
+  h1 { font-size: clamp(22px, 5vw, 30px); margin: 0 0 12px; line-height: 1.4; }
+  .lead { margin: 0; font-size: 15px; opacity: .95; }
+  .lead li { margin: 2px 0; }
+  .lead ul { margin: 0; padding-left: 1.2em; }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    margin: 20px 0;
+  }
+  .card h2 {
+    font-size: 18px;
+    margin: 0 0 4px;
+    color: var(--navy);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .step {
+    display: inline-grid; place-items: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--blue); color: var(--white); font-size: 14px;
+  }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+
+  /* stepper rows */
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 14px 0; border-top: 1px solid var(--line);
+  }
+  .row:first-of-type { border-top: none; }
+  .row .name { font-weight: 500; }
+  .row .price { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .stepper { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .stepper button {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--blue); background: var(--white); color: var(--blue);
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .stepper button:disabled { opacity: .35; cursor: default; }
+  .stepper button:not(:disabled):hover { background: var(--sky); }
+  .stepper output { width: 36px; text-align: center; font-size: 18px; font-weight: 700; }
+  .group-label {
+    font-size: 13px; color: var(--muted); margin: 18px 0 0;
+    padding-top: 14px; border-top: 2px dashed var(--line);
+  }
+
+  .estimate {
+    margin-top: 18px; background: var(--sky); border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .estimate .label { font-size: 14px; color: var(--navy); }
+  .estimate .total { font-size: 32px; font-weight: 700; color: var(--navy); }
+  .estimate .total small { font-size: 14px; font-weight: 500; }
+  .estimate .breakdown { font-size: 13px; color: var(--muted); margin: 6px 0 0; padding: 0; list-style: none; }
+  .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+
+  /* form fields */
+  .field { margin: 0 0 18px; }
+  .field > label, .field > .label {
+    display: block; font-weight: 500; margin-bottom: 6px;
+  }
+  .req, .opt {
+    font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-left: 6px; vertical-align: 2px;
+  }
+  .req { background: var(--accent); color: var(--white); }
+  .opt { background: #e3e8ee; color: var(--muted); }
+  input[type=text], input[type=tel], input[type=email], input[type=date], select, textarea {
+    width: 100%; font: inherit; padding: 11px 12px;
+    border: 1px solid #b9c7d5; border-radius: 8px; background: var(--white); color: var(--text);
+  }
+  textarea { min-height: 110px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-color: var(--blue); }
+  .hint { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+  .choices { display: grid; gap: 8px; }
+  .choices label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+    font-weight: 400;
+  }
+  .choices label:has(input:checked) { border-color: var(--blue); background: var(--sky); }
+  .choices input { width: 18px; height: 18px; accent-color: var(--blue); }
+  .date-set {
+    border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 12px;
+  }
+  .date-set legend { font-weight: 500; padding: 0 6px; }
+  .date-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 480px) { .date-grid { grid-template-columns: 1fr; } }
+  .error-msg { color: var(--error); font-size: 13px; margin: 4px 0 0; display: none; }
+  .invalid .error-msg { display: block; }
+  .invalid input, .invalid select { border-color: var(--error); }
+  .code-ok { color: #1e8449; font-size: 13px; margin: 4px 0 0; display: none; }
+
+  .submit-area { text-align: center; margin: 28px 0 8px; }
+  button.submit {
+    width: 100%; max-width: 420px; padding: 16px; font: inherit; font-size: 18px; font-weight: 700;
+    color: var(--white); background: var(--accent); border: none; border-radius: 999px; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(232,116,59,.3);
+  }
+  button.submit:hover { filter: brightness(1.05); }
+  button.submit:disabled { opacity: .6; cursor: wait; }
+  .form-error { color: var(--error); font-weight: 500; margin-top: 12px; }
+
+  .done { text-align: center; padding: 40px 20px; }
+  .done h2 { justify-content: center; font-size: 22px; }
+  .done p { margin: 8px 0; }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 24px 0 40px; }
+  footer .tel { font-size: 20px; font-weight: 700; color: var(--navy); text-decoration: none; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="company">株式会社トレックスパートナーズ</p>
+    <h1>エアコンクリーニング<br>ご予約フォーム</h1>
+    <div class="lead">
+      <ul>
+        <li>台数とオプションを選ぶと、概算料金がすぐに表示されます。</li>
+        <li>送信後、ご入力のメールアドレスに受付確認メールが届きます。</li>
+        <li>作業日は、担当者からのご連絡をもって確定となります。</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+<form id="bookingForm" novalidate>
+
+  <!-- STEP 1 -->
+  <section class="card" aria-labelledby="s1">
+    <h2 id="s1"><span class="step">1</span>台数とオプションを選ぶ</h2>
+    <p class="sub">オプションは、ご希望の台数分をお選びください。</p>
+
+    <div class="row">
+      <span class="name">エアコン台数（壁掛け）<span class="price" id="p-standard"></span></span>
+      <div class="stepper" data-key="units" data-min="1" data-max="10"></div>
+    </div>
+    <div class="row">
+      <span class="name">うち、お掃除機能付き<span class="price" id="p-auto"></span></span>
+      <div class="stepper" data-key="autoUnits" data-min="0" data-max="units"></div>
+    </div>
+
+    <p class="group-label">オプション</p>
+    <div class="row">
+      <span class="name">防カビ・抗菌コート<span class="price" id="p-antiMold"></span></span>
+      <div class="stepper" data-key="antiMold" data-min="0" data-max="units"></div>
+    </div>
+    <div class="row">
+      <span class="name">室外機クリーニング<span class="price" id="p-outdoor"></span></span>
+      <div class="stepper" data-key="outdoor" data-min="0" data-max="units"></div>
+    </div>
+    <div class="row">
+      <span class="name">ドレンホース洗浄<span class="price" id="p-drain"></span></span>
+      <div class="stepper" data-key="drain" data-min="0" data-max="units"></div>
+    </div>
+
+    <div class="estimate" aria-live="polite">
+      <div class="label">概算料金</div>
+      <div class="total"><span id="total">0</span><small> 円（税込・駐車場代別）</small></div>
+      <ul class="breakdown" id="breakdown"></ul>
+    </div>
+    <p class="note">汚れ具合による追加料金は原則いただきません。機種や設置状況により特別な作業が必要な場合は、作業前にご説明し、ご了承いただいてから進めます。</p>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card" aria-labelledby="s2">
+    <h2 id="s2"><span class="step">2</span>ご予約情報を入力する</h2>
+    <p class="sub">「必須」の項目は必ずご入力ください。</p>
+
+    <div class="field" data-required>
+      <label for="name">お名前<span class="req">必須</span></label>
+      <input type="text" id="name" name="name" autocomplete="name" placeholder="例）山田 太郎">
+      <p class="error-msg">お名前を入力してください。</p>
+    </div>
+
+    <div class="field" data-required data-type="tel">
+      <label for="tel">電話番号<span class="req">必須</span></label>
+      <input type="tel" id="tel" name="tel" autocomplete="tel" inputmode="tel" placeholder="例）090-1234-5678">
+      <p class="error-msg">正しい電話番号を入力してください。</p>
+    </div>
+
+    <div class="field" data-required data-type="email">
+      <label for="email">メールアドレス<span class="req">必須</span></label>
+      <input type="email" id="email" name="email" autocomplete="email" placeholder="例）example@mail.com">
+      <p class="hint">受付確認メールをお送りします。</p>
+      <p class="error-msg">正しいメールアドレスを入力してください。</p>
+    </div>
+
+    <div class="field" data-required>
+      <label for="pref">エリア<span class="req">必須</span></label>
+      <select id="pref" name="pref">
+        <option value="">選択してください</option>
+        <option>東京都</option>
+        <option>神奈川県</option>
+        <option>埼玉県</option>
+        <option>千葉県</option>
+        <option value="その他">その他（ご相談）</option>
+      </select>
+      <p class="error-msg">エリアを選択してください。</p>
+    </div>
+
+    <div class="field">
+      <label for="zip">郵便番号<span class="opt">任意</span></label>
+      <input type="text" id="zip" name="zip" autocomplete="postal-code" inputmode="numeric" placeholder="例）135-0048" maxlength="8">
+    </div>
+
+    <div class="field" data-required>
+      <label for="address">ご住所<span class="req">必須</span></label>
+      <input type="text" id="address" name="address" autocomplete="street-address" placeholder="市区町村・番地・建物名・部屋番号">
+      <p class="error-msg">ご住所を入力してください。</p>
+    </div>
+
+    <div class="field" data-required data-type="radio" data-name="houseType">
+      <span class="label">お住まいのタイプ<span class="req">必須</span></span>
+      <div class="choices">
+        <label><input type="radio" name="houseType" value="戸建て">戸建て</label>
+        <label><input type="radio" name="houseType" value="マンション・アパート">マンション・アパート</label>
+        <label><input type="radio" name="houseType" value="その他（店舗・事務所など）">その他（店舗・事務所など）</label>
+      </div>
+      <p class="error-msg">お住まいのタイプを選択してください。</p>
+    </div>
+
+    <div class="field">
+      <span class="label">作業日のご希望<span class="req">必須</span></span>
+      <p class="hint" style="margin:0 0 10px">第一〜第三希望をお選びください。いずれも難しい場合は、担当者から日程調整のご連絡をいたします。</p>
+      <div id="dateSets"></div>
+    </div>
+
+    <div class="field" data-required data-type="radio" data-name="payment">
+      <span class="label">お支払い方法<span class="req">必須</span></span>
+      <div class="choices">
+        <label><input type="radio" name="payment" value="作業当日に現金">作業当日に現金</label>
+        <label><input type="radio" name="payment" value="作業当日にPayPay">作業当日にPayPay</label>
+        <label><input type="radio" name="payment" value="その他（ご相談）">その他（ご相談）</label>
+      </div>
+      <p class="error-msg">お支払い方法を選択してください。</p>
+    </div>
+
+    <div class="field" data-required data-type="radio" data-name="parking">
+      <span class="label">駐車場<span class="req">必須</span></span>
+      <div class="choices">
+        <label><input type="radio" name="parking" value="敷地内に駐車可">敷地内に駐車できる</label>
+        <label><input type="radio" name="parking" value="近隣コインパーキング利用">近隣のコインパーキングを利用</label>
+        <label><input type="radio" name="parking" value="相談したい">相談したい</label>
+      </div>
+      <p class="hint">コインパーキングをご利用の場合、駐車場代は実費をご負担いただきます。</p>
+      <p class="error-msg">駐車場について選択してください。</p>
+    </div>
+
+    <div class="field">
+      <span class="label">エアコン以外のお掃除もご希望の方<span class="opt">任意</span></span>
+      <div class="choices">
+        <label><input type="checkbox" name="extra" value="浴室">浴室</label>
+        <label><input type="checkbox" name="extra" value="キッチン・水回り">キッチン・水回り</label>
+        <label><input type="checkbox" name="extra" value="洗濯機">洗濯機</label>
+        <label><input type="checkbox" name="extra" value="その他">その他</label>
+      </div>
+      <p class="hint">料金は担当者からご案内します。</p>
+    </div>
+
+    <div class="field">
+      <label for="note">ご要望・備考<span class="opt">任意</span></label>
+      <textarea id="note" name="note" placeholder="エアコンのメーカー・設置場所、気になる点などがあればご記入ください。"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="referral">紹介コード<span class="opt">任意</span></label>
+      <input type="text" id="referral" name="referral" placeholder="お持ちの方のみ">
+      <p class="code-ok" id="codeOk">紹介コードが入力されています。</p>
+    </div>
+  </section>
+
+  <div class="submit-area">
+    <button type="submit" class="submit" id="submitBtn">この内容で予約する</button>
+    <p class="form-error" id="formError" hidden></p>
+    <p class="note">送信後に受付確認メールが届きます。作業日は、ご予約から5営業日以内に担当者よりご連絡し、確定いたします。</p>
+  </div>
+</form>
+
+<section class="card done" id="done" hidden>
+  <h2>ご予約を受け付けました</h2>
+  <p>ありがとうございます。<br>ご入力のメールアドレスに受付確認メールをお送りしました。</p>
+  <p>作業日は、担当者よりあらためてご連絡し、確定いたします。</p>
+  <p class="note">確認メールが届かない場合は、迷惑メールフォルダをご確認いただくか、お電話でお問い合わせください。</p>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>お電話でのご予約・お問い合わせ</p>
+    <!-- TODO: 電話番号を自社の番号に差し替え -->
+    <a class="tel" href="tel:00-0000-0000" id="telLink">00-0000-0000</a>
+    <p>株式会社トレックスパートナーズ</p>
+  </div>
+</footer>
+
+<script>
+/* ===================================================
+   設定（ここを書き換えれば料金・送信先が変わります）
+   =================================================== */
+const CONFIG = {
+  // Google Apps Script のウェブアプリURL（設定後に貼り付け）
+  endpoint: "",
+
+  // 料金（税込・円）※仮の金額です
+  prices: {
+    standard: 9000,   // 通常の壁掛けエアコン 1台
+    auto:     18000,  // お掃除機能付き 1台
+    antiMold: 2000,   // 防カビ・抗菌コート 1台あたり
+    outdoor:  4000,   // 室外機クリーニング 1台あたり
+    drain:    2000    // ドレンホース洗浄 1台あたり
+  },
+
+  // 何日後から希望日を選べるか
+  minDaysAhead: 3
+};
+
+/* ---------- 台数・オプション ---------- */
+const state = { units: 1, autoUnits: 0, antiMold: 0, outdoor: 0, drain: 0 };
+const yen = n => n.toLocaleString("ja-JP");
+
+document.getElementById("p-standard").textContent = `1台 ${yen(CONFIG.prices.standard)}円`;
+document.getElementById("p-auto").textContent = `1台 ${yen(CONFIG.prices.auto)}円`;
+document.getElementById("p-antiMold").textContent = `1台あたり ${yen(CONFIG.prices.antiMold)}円`;
+document.getElementById("p-outdoor").textContent = `1台あたり ${yen(CONFIG.prices.outdoor)}円`;
+document.getElementById("p-drain").textContent = `1台あたり ${yen(CONFIG.prices.drain)}円`;
+
+const steppers = [...document.querySelectorAll(".stepper")];
+steppers.forEach(el => {
+  const key = el.dataset.key;
+  el.innerHTML = `
+    <button type="button" aria-label="減らす">−</button>
+    <output aria-live="polite"></output>
+    <button type="button" aria-label="増やす">＋</button>`;
+  const [minus, , plus] = el.children;
+  minus.addEventListener("click", () => { state[key]--; render(); });
+  plus.addEventListener("click", () => { state[key]++; render(); });
+});
+
+function limits(el) {
+  const min = Number(el.dataset.min);
+  const max = el.dataset.max === "units" ? state.units : Number(el.dataset.max);
+  return { min, max };
+}
+
+function calc() {
+  const p = CONFIG.prices;
+  const standardUnits = state.units - state.autoUnits;
+  const lines = [];
+  if (standardUnits) lines.push([`通常エアコン ×${standardUnits}台`, standardUnits * p.standard]);
+  if (state.autoUnits) lines.push([`お掃除機能付き ×${state.autoUnits}台`, state.autoUnits * p.auto]);
+  if (state.antiMold) lines.push([`防カビ・抗菌コート ×${state.antiMold}`, state.antiMold * p.antiMold]);
+  if (state.outdoor) lines.push([`室外機クリーニング ×${state.outdoor}`, state.outdoor * p.outdoor]);
+  if (state.drain) lines.push([`ドレンホース洗浄 ×${state.drain}`, state.drain * p.drain]);
+  const total = lines.reduce((s, l) => s + l[1], 0);
+  return { lines, total };
+}
+
+function render() {
+  // 範囲内に収める（台数を減らしたらオプションも合わせて減らす）
+  steppers.forEach(el => {
+    const { min, max } = limits(el);
+    const key = el.dataset.key;
+    state[key] = Math.min(Math.max(state[key], min), max);
+  });
+  steppers.forEach(el => {
+    const { min, max } = limits(el);
+    const key = el.dataset.key;
+    const [minus, out, plus] = el.children;
+    out.textContent = state[key];
+    minus.disabled = state[key] <= min;
+    plus.disabled = state[key] >= max;
+  });
+  const { lines, total } = calc();
+  document.getElementById("total").textContent = yen(total);
+  document.getElementById("breakdown").innerHTML =
+    lines.map(([label, v]) => `<li>${label}：${yen(v)}円</li>`).join("");
+}
+render();
+
+/* ---------- 希望日 ---------- */
+const slots = ["9時〜12時", "12時〜15時", "15時〜18時", "上記以外で相談したい"];
+const minDate = new Date();
+minDate.setDate(minDate.getDate() + CONFIG.minDaysAhead);
+const minStr = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, "0")}-${String(minDate.getDate()).padStart(2, "0")}`;
+const labels = ["第一希望", "第二希望", "第三希望"];
+document.getElementById("dateSets").innerHTML = labels.map((l, i) => `
+  <fieldset class="date-set">
+    <legend>${l}</legend>
+    <div class="date-grid">
+      <div class="field" data-required style="margin:0">
+        <label for="date${i + 1}" style="font-weight:400;font-size:14px">日付</label>
+        <input type="date" id="date${i + 1}" name="date${i + 1}" min="${minStr}">
+        <p class="error-msg">日付を選択してください。</p>
+      </div>
+      <div class="field" data-required style="margin:0">
+        <label for="time${i + 1}" style="font-weight:400;font-size:14px">時間帯</label>
+        <select id="time${i + 1}" name="time${i + 1}">
+          <option value="">選択してください</option>
+          ${slots.map(s => `<option>${s}</option>`).join("")}
+        </select>
+        <p class="error-msg">時間帯を選択してください。</p>
+      </div>
+    </div>
+  </fieldset>`).join("");
+
+/* ---------- 紹介コード ---------- */
+const referral = document.getElementById("referral");
+referral.addEventListener("input", () => {
+  document.getElementById("codeOk").style.display = referral.value.trim() ? "block" : "none";
+});
+
+/* ---------- 入力チェック ---------- */
+const form = document.getElementById("bookingForm");
+
+function checkField(field) {
+  const type = field.dataset.type;
+  let ok;
+  if (type === "radio") {
+    ok = !!form.querySelector(`input[name="${field.dataset.name}"]:checked`);
+  } else {
+    const input = field.querySelector("input, select, textarea");
+    const v = input.value.trim();
+    if (type === "email") ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    else if (type === "tel") ok = v.replace(/[^\d]/g, "").length >= 10;
+    else ok = v !== "";
+  }
+  field.classList.toggle("invalid", !ok);
+  return ok;
+}
+
+form.querySelectorAll("[data-required]").forEach(field => {
+  field.addEventListener("change", () => { if (field.classList.contains("invalid")) checkField(field); });
+  field.addEventListener("input", () => { if (field.classList.contains("invalid")) checkField(field); });
+});
+
+/* ---------- 送信 ---------- */
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const errorBox = document.getElementById("formError");
+  errorBox.hidden = true;
+
+  const fields = [...form.querySelectorAll("[data-required]")];
+  const bad = fields.filter(f => !checkField(f));
+  if (bad.length) {
+    bad[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    errorBox.textContent = "未入力または誤りのある項目があります。";
+    errorBox.hidden = false;
+    return;
+  }
+
+  const fd = new FormData(form);
+  const { lines, total } = calc();
+  const data = {
+    name: fd.get("name"), tel: fd.get("tel"), email: fd.get("email"),
+    pref: fd.get("pref"), zip: fd.get("zip"), address: fd.get("address"),
+    houseType: fd.get("houseType"),
+    date1: fd.get("date1"), time1: fd.get("time1"),
+    date2: fd.get("date2"), time2: fd.get("time2"),
+    date3: fd.get("date3"), time3: fd.get("time3"),
+    payment: fd.get("payment"), parking: fd.get("parking"),
+    extra: fd.getAll("extra").join("、"),
+    note: fd.get("note"), referral: fd.get("referral"),
+    units: state.units, autoUnits: state.autoUnits,
+    antiMold: state.antiMold, outdoor: state.outdoor, drain: state.drain,
+    breakdown: lines.map(([l, v]) => `${l}：${yen(v)}円`).join(" / "),
+    total
+  };
+
+  if (!CONFIG.endpoint) {
+    errorBox.textContent = "現在、送信先が設定されていません。お手数ですがお電話でご予約ください。";
+    errorBox.hidden = false;
+    console.log("送信データ（送信先未設定）", data);
+    return;
+  }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "送信中…";
+  try {
+    await fetch(CONFIG.endpoint, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(data)
+    });
+    form.hidden = true;
+    document.getElementById("done").hidden = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    errorBox.textContent = "送信に失敗しました。通信環境をご確認のうえ、もう一度お試しください。";
+    errorBox.hidden = false;
+    btn.disabled = false;
+    btn.textContent = "この内容で予約する";
+  }
+});
+</script>
+</body>
+</html>
