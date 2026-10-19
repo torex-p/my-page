@@ -11,6 +11,8 @@
 
 // ===== 設定 =====
 const SETTINGS = {
+  // 予約を記録するスプレッドシートのID（URLの /d/ と /edit の間の文字列）
+  spreadsheetId: '1qWYeaYNrox6sZADi71P81OsZLH76mq51zrtGnjCLCVs',
   sheetName: '予約一覧',
   // 通知メールの送り先（空欄ならこのスクリプトをデプロイしたアカウント宛て）
   notifyTo: '',
@@ -76,7 +78,7 @@ function doGet() {
 }
 
 function appendRow_(data) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SETTINGS.spreadsheetId);
   let sheet = ss.getSheetByName(SETTINGS.sheetName);
   if (!sheet) sheet = ss.insertSheet(SETTINGS.sheetName);
   if (sheet.getLastRow() === 0) {
