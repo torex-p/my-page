@@ -167,7 +167,25 @@
   }
   .stepper button:disabled { opacity: .35; cursor: default; }
   .stepper button:not(:disabled):hover { background: var(--sky); }
-  .stepper output { width: 36px; text-align: center; font-size: 18px; font-weight: 700; }
+  .stepper output {
+    width: 36px; height: 40px; text-align: center; font-size: 18px; font-weight: 700;
+    position: relative; overflow: hidden; display: grid; place-items: center;
+  }
+  .stepper output span { display: block; }
+  .stepper output span.in-up   { animation: numInUp .35s cubic-bezier(.2,1.4,.4,1) both; }
+  .stepper output span.in-down { animation: numInDown .35s cubic-bezier(.2,1.4,.4,1) both; }
+  @keyframes numInUp   { from { transform: translateY(70%) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes numInDown { from { transform: translateY(-70%) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+  .stepper output span.in-up.up { animation: numInUp .35s cubic-bezier(.2,1.4,.4,1) both, upColor .9s ease-out; }
+  @keyframes upColor { from { color: var(--accent); } to { color: var(--text); } }
+  .stepper output::after {
+    content: ""; position: absolute; inset: 4px; border-radius: 50%;
+    border: 2px solid var(--blue); opacity: 0; pointer-events: none;
+  }
+  .stepper output.ring::after { animation: ring .5s ease-out; }
+  @keyframes ring { from { transform: scale(.4); opacity: .8; } to { transform: scale(1.5); opacity: 0; } }
+  .stepper button:active:not(:disabled) { transform: scale(.9); }
+  .stepper button { transition: transform .1s; }
   .group-label {
     font-size: 13px; color: var(--muted); margin: 18px 0 0;
     padding-top: 14px; border-top: 2px dashed var(--line);
@@ -179,6 +197,28 @@
   }
   .estimate .label { font-size: 14px; color: var(--navy); }
   .estimate .total { font-size: 32px; font-weight: 700; color: var(--navy); }
+  .estimate { transition: box-shadow .3s; position: relative; }
+  .estimate.flash { animation: estFlash .6s ease-out; }
+  @keyframes estFlash {
+    0% { box-shadow: 0 0 0 0 rgba(31,111,178,.45); }
+    100% { box-shadow: 0 0 0 14px rgba(31,111,178,0); }
+  }
+  #total { display: inline-block; font-variant-numeric: tabular-nums; }
+  #total.bump-up { animation: bumpUp .45s cubic-bezier(.2,1.5,.4,1); color: var(--accent); }
+  #total.bump-down { animation: bumpDown .45s ease-out; }
+  @keyframes bumpUp { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  @keyframes bumpDown { 0% { transform: scale(1); } 40% { transform: scale(.9); } 100% { transform: scale(1); } }
+  #total { transition: color .6s; }
+  .float-diff {
+    position: absolute; right: 18px; top: 10px; font-weight: 700; font-size: 16px;
+    pointer-events: none; animation: floatUp 1s ease-out forwards;
+  }
+  .float-diff.plus { color: var(--accent); }
+  .float-diff.minus { color: var(--muted); }
+  @keyframes floatUp { from { transform: translateY(8px); opacity: 0; } 20% { opacity: 1; } to { transform: translateY(-26px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .stepper output span, .stepper output.ring::after, .estimate.flash, #total.bump-up, #total.bump-down, .float-diff { animation: none !important; }
+  }
   .estimate .total small { font-size: 14px; font-weight: 500; }
   .estimate .breakdown { font-size: 13px; color: var(--muted); margin: 6px 0 0; padding: 0; list-style: none; }
   .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
@@ -495,8 +535,8 @@ steppers.forEach(el => {
     <output aria-live="polite"></output>
     <button type="button" aria-label="増やす">＋</button>`;
   const [minus, , plus] = el.children;
-  minus.addEventListener("click", () => { state[key]--; render(); });
-  plus.addEventListener("click", () => { state[key]++; render(); });
+  minus.addEventListener("click", () => { state[key]--; render(key, -1); });
+  plus.addEventListener("click", () => { state[key]++; render(key, 1); });
 });
 
 function limits(el) {
@@ -518,7 +558,38 @@ function calc() {
   return { lines, total };
 }
 
-function render() {
+const prev = {};
+let shownTotal = null;
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function restart(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+function animateTotal(from, to) {
+  const el = document.getElementById("total");
+  if (reduceMotion || from === null) { el.textContent = yen(to); return; }
+  const start = performance.now(), dur = 500;
+  cancelAnimationFrame(animateTotal.raf);
+  const step = now => {
+    const t = Math.min((now - start) / dur, 1);
+    const e = 1 - Math.pow(1 - t, 3);
+    el.textContent = yen(Math.round(from + (to - from) * e));
+    if (t < 1) animateTotal.raf = requestAnimationFrame(step);
+  };
+  animateTotal.raf = requestAnimationFrame(step);
+  restart(el, to > from ? "bump-up" : "bump-down");
+  el.classList.remove(to > from ? "bump-down" : "bump-up");
+  clearTimeout(animateTotal.t);
+  animateTotal.t = setTimeout(() => el.classList.remove("bump-up", "bump-down"), 700);
+  const est = document.querySelector(".estimate");
+  restart(est, "flash");
+  const diff = document.createElement("span");
+  diff.className = "float-diff " + (to > from ? "plus" : "minus");
+  diff.textContent = (to > from ? "+" : "−") + yen(Math.abs(to - from)) + "円";
+  est.appendChild(diff);
+  diff.addEventListener("animationend", () => diff.remove());
+  setTimeout(() => diff.remove(), 1200);
+}
+
+function render(changedKey, dir) {
   // 範囲内に収める（台数を減らしたらオプションも合わせて減らす）
   steppers.forEach(el => {
     const { min, max } = limits(el);
@@ -529,12 +600,22 @@ function render() {
     const { min, max } = limits(el);
     const key = el.dataset.key;
     const [minus, out, plus] = el.children;
-    out.textContent = state[key];
+    if (prev[key] !== state[key]) {
+      const span = document.createElement("span");
+      span.textContent = state[key];
+      if (prev[key] !== undefined && !reduceMotion) {
+        const up = state[key] > prev[key];
+        span.className = (up ? "in-up" : "in-down") + (up && key === changedKey ? " up" : "");
+        if (key === changedKey) restart(out, "ring");
+      }
+      out.replaceChildren(span);
+      prev[key] = state[key];
+    }
     minus.disabled = state[key] <= min;
     plus.disabled = state[key] >= max;
   });
   const { lines, total } = calc();
-  document.getElementById("total").textContent = yen(total);
+  if (total !== shownTotal) { animateTotal(shownTotal, total); shownTotal = total; }
   document.getElementById("breakdown").innerHTML = totalUnits() === 0
     ? "<li>エアコンの台数を1台以上お選びください。</li>"
     : lines.map(([label, v]) => `<li>${label}：${yen(v)}円</li>`).join("");
