@@ -176,12 +176,12 @@
     <p class="sub">オプションは、ご希望の台数分をお選びください。</p>
 
     <div class="row">
-      <span class="name">エアコン台数（壁掛け）<span class="price" id="p-standard"></span></span>
-      <div class="stepper" data-key="units" data-min="1" data-max="10"></div>
+      <span class="name">スタンダードエアコン<span class="price" id="p-standard"></span></span>
+      <div class="stepper" data-key="standardUnits" data-min="0" data-max="10"></div>
     </div>
     <div class="row">
-      <span class="name">うち、お掃除機能付き<span class="price" id="p-auto"></span></span>
-      <div class="stepper" data-key="autoUnits" data-min="0" data-max="units"></div>
+      <span class="name">お掃除機能付エアコン<span class="price" id="p-auto"></span></span>
+      <div class="stepper" data-key="autoUnits" data-min="0" data-max="10"></div>
     </div>
 
     <p class="group-label">オプション</p>
@@ -348,8 +348,8 @@ const CONFIG = {
 
   // 料金（税込・円）※仮の金額です
   prices: {
-    standard: 9000,   // 通常の壁掛けエアコン 1台
-    auto:     18000,  // お掃除機能付き 1台
+    standard: 9000,   // スタンダードエアコン 1台
+    auto:     16000,  // お掃除機能付エアコン 1台
     antiMold: 2000,   // 防カビ・抗菌コート 1台あたり
     outdoor:  4000,   // 室外機クリーニング 1台あたり
     drain:    2000    // ドレンホース洗浄 1台あたり
@@ -360,8 +360,9 @@ const CONFIG = {
 };
 
 /* ---------- 台数・オプション ---------- */
-const state = { units: 1, autoUnits: 0, antiMold: 0, outdoor: 0, drain: 0 };
+const state = { standardUnits: 1, autoUnits: 0, antiMold: 0, outdoor: 0, drain: 0 };
 const yen = n => n.toLocaleString("ja-JP");
+const totalUnits = () => state.standardUnits + state.autoUnits;
 
 document.getElementById("p-standard").textContent = `1台 ${yen(CONFIG.prices.standard)}円`;
 document.getElementById("p-auto").textContent = `1台 ${yen(CONFIG.prices.auto)}円`;
@@ -383,16 +384,16 @@ steppers.forEach(el => {
 
 function limits(el) {
   const min = Number(el.dataset.min);
-  const max = el.dataset.max === "units" ? state.units : Number(el.dataset.max);
+  const max = el.dataset.max === "units" ? totalUnits() : Number(el.dataset.max);
   return { min, max };
 }
 
 function calc() {
   const p = CONFIG.prices;
-  const standardUnits = state.units - state.autoUnits;
+  const standardUnits = state.standardUnits;
   const lines = [];
-  if (standardUnits) lines.push([`通常エアコン ×${standardUnits}台`, standardUnits * p.standard]);
-  if (state.autoUnits) lines.push([`お掃除機能付き ×${state.autoUnits}台`, state.autoUnits * p.auto]);
+  if (standardUnits) lines.push([`スタンダードエアコン ×${standardUnits}台`, standardUnits * p.standard]);
+  if (state.autoUnits) lines.push([`お掃除機能付エアコン ×${state.autoUnits}台`, state.autoUnits * p.auto]);
   if (state.antiMold) lines.push([`防カビ・抗菌コート ×${state.antiMold}`, state.antiMold * p.antiMold]);
   if (state.outdoor) lines.push([`室外機クリーニング ×${state.outdoor}`, state.outdoor * p.outdoor]);
   if (state.drain) lines.push([`ドレンホース洗浄 ×${state.drain}`, state.drain * p.drain]);
@@ -417,8 +418,9 @@ function render() {
   });
   const { lines, total } = calc();
   document.getElementById("total").textContent = yen(total);
-  document.getElementById("breakdown").innerHTML =
-    lines.map(([label, v]) => `<li>${label}：${yen(v)}円</li>`).join("");
+  document.getElementById("breakdown").innerHTML = totalUnits() === 0
+    ? "<li>エアコンの台数を1台以上お選びください。</li>"
+    : lines.map(([label, v]) => `<li>${label}：${yen(v)}円</li>`).join("");
 }
 render();
 
@@ -484,6 +486,13 @@ form.addEventListener("submit", async e => {
   const errorBox = document.getElementById("formError");
   errorBox.hidden = true;
 
+  if (totalUnits() === 0) {
+    document.getElementById("s1").scrollIntoView({ behavior: "smooth", block: "start" });
+    errorBox.textContent = "エアコンの台数を1台以上お選びください。";
+    errorBox.hidden = false;
+    return;
+  }
+
   const fields = [...form.querySelectorAll("[data-required]")];
   const bad = fields.filter(f => !checkField(f));
   if (bad.length) {
@@ -505,7 +514,7 @@ form.addEventListener("submit", async e => {
     payment: fd.get("payment"), parking: fd.get("parking"),
     extra: fd.getAll("extra").join("、"),
     note: fd.get("note"), referral: fd.get("referral"),
-    units: state.units, autoUnits: state.autoUnits,
+    units: totalUnits(), autoUnits: state.autoUnits,
     antiMold: state.antiMold, outdoor: state.outdoor, drain: state.drain,
     breakdown: lines.map(([l, v]) => `${l}：${yen(v)}円`).join(" / "),
     total
