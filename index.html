@@ -712,7 +712,7 @@ form.addEventListener("submit", async e => {
     payment: fd.get("payment"), parking: fd.get("parking"),
     extra: fd.getAll("extra").join("、"),
     note: fd.get("note"), referral: fd.get("referral"),
-    units: totalUnits(), autoUnits: state.autoUnits,
+    units: totalUnits(), standardUnits: state.standardUnits, autoUnits: state.autoUnits,
     antiMold: state.antiMold, outdoor: state.outdoor, drain: state.drain,
     breakdown: lines.map(([l, v]) => `${l}：${yen(v)}円`).join(" / "),
     total
